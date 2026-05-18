@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+
+  webhooks  Webhook[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Webhook {
+  id        String        @id @default(cuid())
+  url       String
+  events    String[]
+  isActive  Boolean       @default(true)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs      DeliveryLog[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([userId, url])
+}
+
+model DeliveryLog {
+  id         String   @id @default(cuid())
+  webhookId  String
+  webhook    Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  event      String
+  payload    Json
+  status     Status   @default(PENDING)
+  attempts   Int?
+  statusCode Int?
+  success    Boolean
+  error      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
