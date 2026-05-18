@@ -1,6 +1,11 @@
 import ApiError from '../../utils/ApiError'
 import { addWebhookJob } from '../../utils/producer'
 import webhookRepository from './repository'
+import { randomBytes } from 'crypto'
+
+const generateWebhookSecret = (): string => {
+  return `whsec_${randomBytes(32).toString('hex')}`
+}
 
 const isValidUrl = (url: string): boolean => {
   try {
@@ -46,6 +51,7 @@ const registerWebhookService = async (params: {
     userId: params.userId,
     url: params.url,
     events: params.events,
+    secret: generateWebhookSecret(),
   })
 
   return webhook
@@ -91,6 +97,7 @@ const triggerWebhookService = async (params: {
         url: webhook.url,
         event: params.event,
         payload: params.payload,
+        secret : webhook.secret
       })
     }),
   )
@@ -156,6 +163,7 @@ const updateWebhookService = async (params: {
 }
 
 const deleteWebhookService = async (params: { id: string; userId: string }) => {
+  console.log(params)
   const webhook = await webhookRepository.findById(params.id, params.userId)
 
   if (!webhook) {

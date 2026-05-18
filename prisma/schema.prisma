@@ -36,6 +36,7 @@ model Webhook {
   events    String[]
   isActive  Boolean       @default(true)
   userId    String
+  secret    String
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   logs      DeliveryLog[]
   createdAt DateTime      @default(now())

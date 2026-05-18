@@ -10,6 +10,7 @@ export async function addWebhookJob(params: {
   url: string
   event: string
   payload: object
+  secret : string
 }) {
   const job = await queue.add(
     `webhook-${params.webhookId}`,
@@ -19,6 +20,7 @@ export async function addWebhookJob(params: {
       url: params.url,
       event: params.event,
       payload: params.payload,
+      secret : params.secret
     },
     {
       attempts: 3, // retry up to 3 times

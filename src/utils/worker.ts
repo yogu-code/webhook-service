@@ -1,19 +1,28 @@
 import { Worker, Job } from 'bullmq'
 import webhookRepository from '../controller/webhook/repository'
+import { generateSignatureHeader } from './hmac.util'
 
 // worker.ts
 const worker = new Worker(
   'webhook-queue',
   async (job: Job) => {
-    const { webhookId, deliveryLogId, url, event, payload } = job.data
+    const { webhookId, secret , deliveryLogId, url, event, payload } = job.data
     const isLastAttempt = job.attemptsMade + 1 >= (job.opts.attempts ?? 3)
-
+    const signatureHeader = generateSignatureHeader(
+      payload,
+      secret,
+    )
     console.log(`[Job ${job.id}] Attempt ${job.attemptsMade + 1} → ${url}`)
 
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Hub-Signature-256': signatureHeader, // ← HMAC Signature
+          'X-Webhook-ID': webhookId,
+          'X-Webhook-Event': event,
+        },
         body: JSON.stringify({
           event,
           payload,

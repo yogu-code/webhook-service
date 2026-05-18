@@ -115,7 +115,7 @@ const updateWebhookController = asyncHandler(
 
 const deleteWebhookController = asyncHandler(
   async (req: Request, res: Response) => {
-    const id = req.params.webhookId2 as string
+    const id = req.params.webhookId as string
     const userId = req.user?.id
 
     await deleteWebhookService({ id, userId })

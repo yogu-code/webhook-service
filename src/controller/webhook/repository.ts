@@ -7,12 +7,13 @@ const webhookRepository = {
     })
   },
 
-  create: async (params: { userId: string; url: string; events: string[] }) => {
+  create: async (params: { userId: string; url: string; events: string[] , secret : string }) => {
     return prisma.webhook.create({
       data: {
         userId: params.userId,
         url: params.url,
         events: params.events,
+        secret : params.secret
       },
     })
   },
