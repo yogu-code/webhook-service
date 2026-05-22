@@ -1,1 +1,1 @@
-import "./utils/worker"
+import './utils/worker'

@@ -3,22 +3,24 @@ version: '3'
 services:
   app:
     build: .
+    command: sh -c "npx prisma migrate deploy && node dist/index.js"
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       - JWT_SECRET="yogu@10089"
       - PORT=8080
       - DATABASE_URL=postgresql://yogu:yogu0019@postgres:5432/webhook
-      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - postgres
       - redis
   worker:
     build: .
-    command: 
-      - node dist/worker.js
+    command: sh -c "npx prisma migrate deploy && node dist/worker.js"
     environment:
-      - REDIS_URL=redis://redis:6379
+      - REDIS_PORT=6379   
+      - REDIS_HOST=redis
       - DATABASE_URL=postgresql://yogu:yogu0019@postgres:5432/webhook
     depends_on:
       - postgres
@@ -27,7 +29,7 @@ services:
   postgres:
     image: postgres:15
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=yogu
       - POSTGRES_PASSWORD=yogu0019
@@ -38,7 +40,7 @@ services:
   redis:
     image: redis:7
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
 volumes:
   postgres-data:

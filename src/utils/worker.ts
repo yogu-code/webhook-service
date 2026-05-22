@@ -6,12 +6,9 @@ import { generateSignatureHeader } from './hmac.util'
 const worker = new Worker(
   'webhook-queue',
   async (job: Job) => {
-    const { webhookId, secret , deliveryLogId, url, event, payload } = job.data
+    const { webhookId, secret, deliveryLogId, url, event, payload } = job.data
     const isLastAttempt = job.attemptsMade + 1 >= (job.opts.attempts ?? 3)
-    const signatureHeader = generateSignatureHeader(
-      payload,
-      secret,
-    )
+    const signatureHeader = generateSignatureHeader(payload, secret)
     console.log(`[Job ${job.id}] Attempt ${job.attemptsMade + 1} → ${url}`)
 
     try {
@@ -59,7 +56,10 @@ const worker = new Worker(
     }
   },
   {
-    connection: { host: 'redis', port: 6379 },
+    connection: {
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT || ''),
+    },
   },
 )
 

@@ -1,7 +1,10 @@
 import { Queue } from 'bullmq'
 
 const queue = new Queue('webhook-queue', {
-  connection: { host: 'redis', port: 6379 },
+  connection: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT || ''),
+  },
 })
 
 export async function addWebhookJob(params: {
@@ -10,7 +13,7 @@ export async function addWebhookJob(params: {
   url: string
   event: string
   payload: object
-  secret : string
+  secret: string
 }) {
   const job = await queue.add(
     `webhook-${params.webhookId}`,
@@ -20,7 +23,7 @@ export async function addWebhookJob(params: {
       url: params.url,
       event: params.event,
       payload: params.payload,
-      secret : params.secret
+      secret: params.secret,
     },
     {
       attempts: 3, // retry up to 3 times
