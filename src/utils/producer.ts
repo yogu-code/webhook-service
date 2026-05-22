@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq'
 
 const queue = new Queue('webhook-queue', {
-  connection: { host: 'localhost', port: 6379 },
+  connection: { host: 'redis', port: 6379 },
 })
 
 export async function addWebhookJob(params: {

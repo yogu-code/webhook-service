@@ -59,7 +59,7 @@ const worker = new Worker(
     }
   },
   {
-    connection: { host: 'localhost', port: 6379 },
+    connection: { host: 'redis', port: 6379 },
   },
 )
 
